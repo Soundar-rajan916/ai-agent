@@ -33,9 +33,10 @@ async def telegram_webhook(req: Request):
     requests.post(
         f"{TELEGRAM_URL}/sendMessage",
         json={
-            "chat_id": chat_id,
-            "text": response
-        }
+        "chat_id": chat_id,
+        "text": response,
+        "parse_mode": "Markdown"
+    }
     )
 
     return {"ok": True}
