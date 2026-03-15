@@ -16,12 +16,11 @@ def ai_agent(message):
 @app.post("/webhook")
 async def telegram_webhook(req: Request):
     data = await req.json()
-
     chat_id = data["message"]["chat"]["id"]
     text = data["message"]["text"]
 
     response = ai_agent(text)
-
+    print(data)
     requests.post(
         f"{TELEGRAM_URL}/sendMessage",
         json={"chat_id": chat_id, "text": response}
