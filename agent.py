@@ -1,5 +1,6 @@
 import os
 from langchain_groq import ChatGroq
+from langchain.agents import create_agent
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -10,7 +11,12 @@ llm = ChatGroq(
     model="llama-3.1-8b-instant",
     api_key=GROQ_API_KEY
 )
+agents = create_agent(
+    model=llm,
+    tools=[],
+    system_prompt="talk like luffy from one piece"
+)
 
 def agent(message: str) -> str:
-    response = llm.invoke(message)
+    response = agents.invoke(message)
     return response.content
