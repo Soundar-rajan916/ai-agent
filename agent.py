@@ -18,5 +18,5 @@ agents = create_agent(
 )
 
 def agent(message: str) -> str:
-    response = agents.invoke(message)
+    response = agents.invoke({"messages": [{"role": "user", "content": message}]})
     return response.content
