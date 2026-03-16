@@ -6,15 +6,25 @@ from agent import agent
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 
-# only this user can access the bot
 ALLOWED_USER_ID = int(os.getenv("ALLOWED_USER_ID"))
 
 app = FastAPI()
 
 
+@app.get("/")
+def home():
+    return {"status": "Arthur AI agent running"}
+
+
 @app.post("/webhook")
 async def telegram_webhook(req: Request):
-    data = await req.json()
+
+    # safe JSON parsing
+    try:
+        data = await req.json()
+    except Exception:
+        return {"ok": True}
+
     print("UPDATE:", data)
 
     message = data.get("message")
