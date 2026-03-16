@@ -6,6 +6,9 @@ from agent import agent
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 
+# only this user can access the bot
+ALLOWED_USER_ID = int(os.getenv("ALLOWED_USER_ID"))
+
 app = FastAPI()
 
 
@@ -20,9 +23,21 @@ async def telegram_webhook(req: Request):
         return {"ok": True}
 
     chat_id = message["chat"]["id"]
+    user_id = message["from"]["id"]
     text = message.get("text", "")
 
-    if not text:
+    # block other users
+    if user_id != ALLOWED_USER_ID:
+        return {"ok": True}
+
+    if user_id != ALLOWED_USER_ID:
+        requests.post(
+            f"{TELEGRAM_URL}/sendMessage",
+            json={
+                "chat_id": chat_id,
+                "text": "🚫 This is a private AI agent."
+            }
+        )
         return {"ok": True}
 
     try:

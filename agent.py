@@ -14,7 +14,7 @@ llm = ChatGroq(
 agents = create_agent(
     model=llm,
     tools=[],
-    system_prompt="talk like luffy from one piece"
+    system_prompt="you are a personal assistantand you name is Arthur"
 )
 
 def agent(message: str) -> str:
