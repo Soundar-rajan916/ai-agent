@@ -3,14 +3,17 @@ from fastapi import FastAPI, Request
 import requests
 from agent import agent
 
+# Telegram configuration
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 
+# Only allow one user
 ALLOWED_USER_ID = int(os.getenv("ALLOWED_USER_ID"))
 
 app = FastAPI()
 
 
+# Health check route
 @app.get("/")
 def home():
     return {"status": "Arthur AI agent running"}
@@ -19,7 +22,7 @@ def home():
 @app.post("/webhook")
 async def telegram_webhook(req: Request):
 
-    # safe JSON parsing
+    # Safe JSON parsing
     try:
         data = await req.json()
     except Exception:
@@ -36,7 +39,7 @@ async def telegram_webhook(req: Request):
     user_id = message["from"]["id"]
     text = message.get("text", "")
 
-    # block other users
+    # Block unauthorized users
     if user_id != ALLOWED_USER_ID:
         requests.post(
             f"{TELEGRAM_URL}/sendMessage",
@@ -47,18 +50,34 @@ async def telegram_webhook(req: Request):
         )
         return {"ok": True}
 
-    try:
-        response = agent(text)
-    except Exception as e:
-        response = f"Error: {str(e)}"
-
+    # Show typing indicator
     requests.post(
+        f"{TELEGRAM_URL}/sendChatAction",
+        json={
+            "chat_id": chat_id,
+            "action": "typing"
+        }
+    )
+
+    # Run AI agent
+    try:
+        response = str(agent(text))
+        print("AGENT RESPONSE:", response)
+    except Exception as e:
+        response = f"⚠️ Agent error: {str(e)}"
+
+    # Telegram message length safety
+    response = response[:4000]
+
+    # Send message
+    r = requests.post(
         f"{TELEGRAM_URL}/sendMessage",
         json={
             "chat_id": chat_id,
-            "text": response,
-            "parse_mode": "Markdown"
+            "text": response
         }
     )
+
+    print("TELEGRAM API RESPONSE:", r.text)
 
     return {"ok": True}
