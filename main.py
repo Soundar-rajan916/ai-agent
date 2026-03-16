@@ -28,9 +28,6 @@ async def telegram_webhook(req: Request):
 
     # block other users
     if user_id != ALLOWED_USER_ID:
-        return {"ok": True}
-
-    if user_id != ALLOWED_USER_ID:
         requests.post(
             f"{TELEGRAM_URL}/sendMessage",
             json={
